@@ -17,8 +17,22 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 from urllib.parse import urlparse
 import os
 
-dictionaryfile = "paths.dict"
 outputfile = "output.log"
+
+
+def _default_dictionary_path():
+    """Resolve paths.dict: prefer package location (pipx install), then same dir as script (dev)."""
+    base = os.path.dirname(os.path.abspath(__file__))
+    for candidate in [
+        os.path.join(base, "ntlmscan", "paths.dict"),  # installed (data_files)
+        os.path.join(base, "paths.dict"),              # dev / same dir
+    ]:
+        if os.path.isfile(candidate):
+            return candidate
+    return os.path.join(base, "paths.dict")  # fallback for clearer error
+
+
+dictionaryfile = "paths.dict"  # overridden by main() default
 debugoutput = False
 nmapscan = False
 foundURLs = []
@@ -110,8 +124,8 @@ def main():
     parser.add_argument("--outfile", help="file to write results to")
     parser.add_argument(
         "--dictionary",
-        help="list of paths to test, default: paths.dict",
-        default=os.path.dirname(os.path.abspath(__file__)) + "/paths.dict",
+        help="list of paths to test, default: paths.dict (bundled when installed via pip/pipx)",
+        default=_default_dictionary_path(),
     )
     parser.add_argument(
         "--nmap", help="run nmap when complete", action="store_true", default=False
@@ -146,8 +160,9 @@ def main():
     if args.dictionary:
         print("custom dictionary has been set to {}".format(args.dictionary))
         dictionaryfile = args.dictionary
-        if not os.path.isfile(dictionaryfile):
-            dictionaryfile = os.path.dirname(__file__) + args.dictionary
+        if not os.path.isfile(dictionaryfile) and not os.path.isabs(args.dictionary):
+            # try relative to script/package dir
+            dictionaryfile = os.path.join(os.path.dirname(os.path.abspath(__file__)), args.dictionary)
 
     # now that we have that sorted, load the dictionary into array called pathlist
     # print("Using dictionary located at: {}".format(dictionaryfile))
