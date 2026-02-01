@@ -96,7 +96,8 @@ def makeRequests(url_data):
         pass
 
 
-if __name__ == "__main__":
+def main():
+    global outputfile, dictionaryfile, debugoutput
     parser = argparse.ArgumentParser()
     parser.add_argument("--url", help="full url path to test")
     parser.add_argument("--host", help="a single host to search for ntlm dirs on")
@@ -250,3 +251,7 @@ if __name__ == "__main__":
         print(f"Total: {len(foundURLs)} URL(s)")
     else:
         print("\nNo NTLM URLs found.")
+
+
+if __name__ == "__main__":
+    main()
