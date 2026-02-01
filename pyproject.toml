@@ -14,7 +14,10 @@ dependencies = [
 ]
 
 [project.scripts]
-ntlmscan = "ntlmscan:main"
+ntlmscan = "ntlmscan.__main__:main"
 
-[tool.setuptools]
-py-modules = ["ntlmscan"]
+[tool.setuptools.packages.find]
+where = ["."]
+
+[tool.setuptools.package-data]
+ntlmscan = ["paths.dict"]
